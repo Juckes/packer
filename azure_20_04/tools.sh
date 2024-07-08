@@ -3,140 +3,105 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
-sudo bash -c echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
-sudo bash -c echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
+# Set APT options
+sudo bash -c 'echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries'
+sudo bash -c 'echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes'
 
-sudo apt-get clean && apt-get update && apt-get upgrade -y
+sudo apt-get clean && apt-get update && apt-get upgrade
 
 # Source the config file
-if [ -f /tmp/config.sh ]; then
-  echo "Sourcing /tmp/config.sh"
-  source /tmp/config.sh
+CONFIG_FILE="/tmp/config.sh"
+if [ -f "$CONFIG_FILE" ]; then
+  echo "Sourcing $CONFIG_FILE"
+  source "$CONFIG_FILE"
 else
   echo "config.sh not found" >&2
   exit 1
 fi
 
-# # Ownership adjustment for pip cache directory - taken out as not installing pip...
-# echo "Adjusting ownership of pip cache directory..."
-# sudo chown -R packer:packer /home/packer/.cache || {
-#   echo "Failed to adjust ownership of pip cache directory." >&2
-#   exit 1
-# }
-
 # Debugging output for repositories and packages
 echo "APT_REPOSITORIES: ${APT_REPOSITORIES[*]}"
 echo "COMMON_PACKAGES: ${COMMON_PACKAGES[*]}"
 
+# Function to add APT repository
 add_apt_repository() {
   if sudo add-apt-repository -y "$1"; then
-    echo "################################################################################## Added repository: $1"
+    echo "Added repository: $1"
   else
     echo "Failed to add repository: $1" >&2
     exit 1
   fi
 }
 
+# Function to install packages
 install_packages() {
   if sudo apt-get install -y --no-install-recommends "$@"; then
-    echo "################################################################################## Installed packages: $@"
+    echo "Installed packages: $@"
   else
     echo "Failed to install packages: $@" >&2
     exit 1
   fi
 }
 
+# Add repositories
 for repo in "${APT_REPOSITORIES[@]}"; do
-  echo "################################################################################## ADDING REPOSITORIES: $repo"
+  echo "Adding repository: $repo"
   add_apt_repository "$repo"
 done
 
-echo "################################################################################## INSTALLING COMMON PACKAGES..."
+# Install common packages
+echo "Installing common packages..."
 install_packages "${COMMON_PACKAGES[@]}"
 
-sudo rm -rf /var/lib/apt/lists/*
-sudo apt-get clean
-sudo apt-get update
-
-# Define Python packages to install
-PYTHON_PACKAGES=(
-  # "python${PYTHON_VERSION}"
-  # "python${PYTHON_VERSION}-distutils" # This is included in both servers
-  "python3-pip"
-)
-
-echo "################################################################################## INSTALLING PYTHON PACKAGES..."
-install_packages "${PYTHON_PACKAGES[@]}"
-
-# Upgrade setuptools and pip
-echo "Upgrading setuptools and pip..."
-python3 -m pip install --user -U setuptools pip
-
-# Remove existing PyYAML installed via apt
-# echo "Removing existing PyYAML..."
-# sudo apt-get remove -y python3-yaml
-
-# Upgrade or reinstall PyYAML
-# echo "################################################################################## Upgrading PyYAML..."
-# python3 -m pip install --force-reinstall pyyaml
-
-
-# Install specific version of packaging library
-echo "################################################################################## Installing packaging library..."
-if sudo -H python3 -m pip install --force-reinstall packaging==21; then
-  echo "Packaging library installed successfully."
-else
-  echo "Failed to install packaging library." >&2
-  exit 1
-fi
-
 # Docker Engine
+echo "Installing Docker Engine..."
 sudo apt-get install -y docker.io
-
-sudo usermod -aG docker $USER
+sudo usermod -aG docker "$USER"
 newgrp docker
 
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
 # Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+echo "Installing Docker Compose..."
+sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
 # Install tfenv
+echo "Installing tfenv..."
 git clone https://github.com/tfutils/tfenv.git ~/.tfenv
 sudo ln -s ~/.tfenv/bin/* /usr/local/bin
 
 # Terraform
+echo "Installing Terraform versions..."
 for version in "${TERRAFORM_VERSIONS[@]}"; do
   tfenv install "$version"
-  tfenv use 1.9.0
+  tfenv use "$version"
 done
 
-# Terragrunt 0.55.1
-sudo curl -s -L "https://github.com/gruntwork-io/terragrunt/releases/download/v0.55.1/terragrunt_linux_amd64" -o /usr/bin/terragrunt && chmod 777 /usr/bin/terragrunt
+# Terragrunt
+echo "Installing Terragrunt..."
+sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
+sudo chmod 755 /usr/bin/terragrunt
 
-# Install Checkov using pip
-echo "################################################################################## Installing Checkov..."
-if sudo -H python3 -m pip install -U checkov==2.2.94; then
-  echo "Checkov installed successfully."
-else
-  echo "Failed to install Checkov." >&2
-  exit 1
-fi
+# Checkov via pip
+echo "Installing Checkov..."
+sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
 
 # TFLint
+echo "Installing TFLint..."
 curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # Node / NVM
+echo "Installing Node.js and NVM..."
 curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-sudo apt-get install nodejs
+NVM_DIR="/usr/local/nvm"
+sudo mkdir -p "$NVM_DIR" && sudo chmod -R 777 "$NVM_DIR"
+curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | NVM_DIR="$NVM_DIR" bash
 
-sudo mkdir /usr/local/nvm && chmod -R 777 /usr/local/nvm
-sudo curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | NVM_DIR=/usr/local/nvm bash
-
-export NVM_DIR="/usr/local/nvm"
+export NVM_DIR="$NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 export PATH="$PATH:$NVM_DIR"
 
@@ -146,30 +111,27 @@ export NVM_DIR="/usr/local/nvm"
 export PATH="$PATH:$NVM_DIR"
 EOT
 
-for version in 20 18 16 15 14; do
+for version in "${NODE_VERSIONS[@]}"; do
   nvm install "$version"
 done
 
-nvm alias default 16
+nvm alias default "$DEFAULT_NODE_VERSION"
 nvm use default
 
 # Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+echo "Installing Azure CLI..."
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # .NET Core
+echo "Installing .NET Core..."
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y apt-transport-https
+sudo apt-get update
+sudo apt-get install -y aspnetcore-runtime-6.0
 
-sudo apt-get update; \
-  sudo apt-get install -y apt-transport-https && \
-  sudo apt-get update && \
-  sudo apt-get install -y aspnetcore-runtime-6.0
-
+# Clean up
 echo "Cleaning up..."
-export HISTSIZE=0
-sync
-
-
-# Anything that can be installed via pip
-# Perhaps we need to build a proper 'golden image'
+sudo /usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync
