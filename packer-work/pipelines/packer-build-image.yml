@@ -29,7 +29,7 @@ jobs:
         displayName: 'Terraform version is TERRAFORM_VERSION'
       - script: packer init .
         displayName: Packer init
-        workingDirectory: $(Build.Repository.LocalPath)/packer/image-build
+        workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
       - script: packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
         displayName: Packer Build
         env:
@@ -38,7 +38,7 @@ jobs:
           PKR_VAR_subscription_id: $(SANDPIT_SUBSCRIPTION)
           PKR_VAR_tenant_id: $(AZURE_TENANT_ID)
           PKR_VAR_template_resource_group_name: $(templateResourceGroupName)
-        workingDirectory: $(Build.Repository.LocalPath)/packer/image-build
+        workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
     variables:
       templateResourceGroupName: packer
     workspace:
