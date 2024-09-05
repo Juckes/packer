@@ -7,7 +7,7 @@ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 
 # Set the Terraform version
-TERRAFORM_VERSION="1.8.0"
+TERRAFORM_VERSION="1.9.5-1"
 
 # Update package lists and install Terraform
 sudo apt-get update
