@@ -1,0 +1,45 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: Planning-Inspectorate
+      name: Planning-Inspectorate/common-pipeline-templates
+      ref: refs/tags/release/3.1.0
+
+variables:
+  - group: template-packer
+
+jobs:
+  - job: Build
+    displayName: Init and Build and Save Azure Scale Set Image
+    steps:
+      - template: steps/azure_auth.yml@templates
+        parameters:
+          subscriptionId: $(SANDPIT_SUBSCRIPTION)
+      - script: |
+          TERRAFORM_VERSION="TERRAFORM_VERSION"
+          echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
+        displayName: 'Terraform version is TERRAFORM_VERSION'
+      - script: packer init .
+        displayName: Packer init
+        workingDirectory: $(Build.Repository.LocalPath)/packer/image-build
+      - script: packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
+        displayName: Packer Build
+        env:
+          PKR_VAR_client_id: $(AZURE_SERVICE_PRINCIPAL_ID)
+          PKR_VAR_client_secret: $(AZURE_SERVICE_PRINCIPAL_SECRET)
+          PKR_VAR_subscription_id: $(SANDPIT_SUBSCRIPTION)
+          PKR_VAR_tenant_id: $(AZURE_TENANT_ID)
+          PKR_VAR_template_resource_group_name: $(templateResourceGroupName)
+        workingDirectory: $(Build.Repository.LocalPath)/packer/image-build
+    variables:
+      templateResourceGroupName: packer
+    workspace:
+      clean: all

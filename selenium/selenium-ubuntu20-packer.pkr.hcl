@@ -14,25 +14,22 @@ source "azure-arm" "ubuntu" {
   tenant_id       = var.tenant_id
 
   os_type                           = "Linux"
-  managed_image_name                = "learn-packer-linux-azure-${formatdate("YYYY-MM-DD-hhmmss", timestamp())}"
+  managed_image_name                = "selenium-${formatdate("YYYY-MM-DD-hhmmss", timestamp())}"
   managed_image_resource_group_name = "packer"
 
   image_publisher = "Canonical"
   image_offer     = "0001-com-ubuntu-server-focal"
-  image_sku       = "20_04-lts"
-  // image_version   = "20.04.202203220"
+  image_sku       = "20_04-lts-gen2"
+  // image_version   = "latest"
 
-  location = "eastus2"
+  location = "eastus"
   vm_size  = "Standard_B1s"
-
-  azure_tags = {
-    environment = "dev"
-    project     = "learn-packer"
-  }
+  public_ip_sku = "Standard"
 }
 
+# defines what Packer should do with the instance after it launches
 build {
-  name    = "learn-packer"
+  name    = "selenium"
   sources = ["source.azure-arm.ubuntu"]
 
   provisioner "file" {
@@ -42,14 +39,14 @@ build {
 
   provisioner "shell" {
     execute_command = "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash -e '{{ .Path }}'"
-    script          = "${path.cwd}/tools.sh"
+    script = "software.sh"
   }
 }
 
 variable "client_id" {
   description = "The ID of the service principal used to build the image"
   type        = string
-  default     = "761dc672-19c8-4ae4-84fb-e7de69436817"
+  default     = "4372b6f3-bbd2-4786-809c-1cfb36417be6"
 }
 
 variable "client_secret" {

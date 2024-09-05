@@ -1,8 +1,5 @@
 # notes
 
-disable the image in aws so you do not get billed
-ami images and also snapshots
-
 ## Are these packages all needed?
 
 Removed some packages that may not be required, such as:
@@ -73,8 +70,6 @@ Use `sudo apt-cache search <package_name>` to search main for the packages that 
 - `install_packages git git-lfs git-ftp`
   - lfs do we have large datasets run in the agents?
   - can we get rid of the whole line as git is already installed in ubuntu 20.04
-
-`apt` instead of `apt-get` is better practice and more modern
 
 DEBIAN_FRONTEND=noninteractive
 Automated tasks:

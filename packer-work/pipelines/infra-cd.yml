@@ -1,0 +1,34 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  pipelines:
+      trigger:
+        branches:
+          include:
+            - packer
+          exclude:
+            - app
+            - infrastructure
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: Planning-Inspectorate
+      name: Planning-Inspectorate/common-pipeline-templates
+      ref: refs/tags/release/3.17.0
+
+extends:
+  template: pipelines/terraform_plan_apply.yml@templates
+  parameters:
+    environments:
+      - name: Dev
+    serviceConnectionPrefix: Azure DevOps Pipelines - DevOps Template - Infrastructure
+    storageAccountName: pinssttfstateukstemplate
+    resourceGroupName: pins-rg-shared-terraform-uks
+    containerPrefix: terraform-state-devops-template-packer-
+    workingDirectory: $(Build.Repository.LocalPath)/packer/infra
+    environmentVarFilePath: $(Build.Repository.LocalPath)/packer/infra/environments

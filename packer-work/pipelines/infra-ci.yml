@@ -1,0 +1,37 @@
+pool:
+  vmImage: ubuntu-latest
+
+trigger:
+  branches:
+    include:
+      - packer
+    exclude:
+      - app
+      - infrastructure
+  paths:
+    include:
+      - packer/**
+
+resources:
+  pipelines:
+    - pipeline: terraform-ci
+      source: Infrastructure PR
+
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: Planning-Inspectorate
+      name: Planning-Inspectorate/common-pipeline-templates
+      ref: refs/tags/release/3.1.0
+
+extends:
+  template: stages/wrapper_ci.yml@templates
+  parameters:
+    validateName: Validate Terraform
+    validationSteps:
+      - template: steps/terraform_format.yml@templates
+      - template: steps/terraform_tflint.yml@templates
+      - template: steps/run_checkov.yml@templates
+      - template: steps/terraform_validate.yml@templates
+        parameters:
+          workingDirectory: $(Build.Repository.LocalPath)/packer/infra
