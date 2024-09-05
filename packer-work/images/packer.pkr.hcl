@@ -28,7 +28,7 @@ build {
 
   source "source.azure-arm.packer-image" {
     managed_image_resource_group_name = var.template_resource_group_name
-    managed_image_name                = "packer-image-${formatdate("YYYY-MM-DD-hhmm", timestamp())}-tf-version:${var.terraform_version}"
+    managed_image_name                = "packer-image-${formatdate("YYYY-MM-DD-hhmm", timestamp())}-tf-version${var.terraform_version}"
 
     os_type         = "Linux"
     image_publisher = "canonical"
