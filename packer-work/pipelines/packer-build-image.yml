@@ -7,7 +7,7 @@ pool:
 
 resources:
   repositories:
-    - repository: packer
+    - repository: templates
       type: github
       endpoint: Juckes
       name: Juckes/common-pipelines-templates
