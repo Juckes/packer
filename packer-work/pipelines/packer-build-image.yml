@@ -7,10 +7,10 @@ pool:
 
 resources:
   repositories:
-    - repository: templates
+    - repository: packer
       type: github
-      endpoint: Planning-Inspectorate
-      name: Planning-Inspectorate/common-pipeline-templates
+      endpoint: Juckes
+      name: Juckes/common-pipelines-templates
       ref: refs/tags/release/3.1.0
 
 variables:
