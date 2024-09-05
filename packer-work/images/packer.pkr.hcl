@@ -28,7 +28,7 @@ build {
 
   source "source.azure-arm.packer-image" {
     managed_image_resource_group_name = var.template_resource_group_name
-    managed_image_name                = "packer-image-${formatdate("YYYY-MM-DD-hhmmss", timestamp())}"
+    managed_image_name                = "packer-image-${formatdate("YYYY-MM-DD-hhmm", timestamp())}-${var.terraform_version}"
 
     os_type         = "Linux"
     image_publisher = "canonical"
@@ -76,5 +76,6 @@ variable "template_resource_group_name" {
 }
 
 variable "terraform_version" {
-  type    = string
+  description = "The version of Terraform used in the build"
+  type        = string
 }
