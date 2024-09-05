@@ -21,6 +21,3 @@ fi
 
 # Export the Terraform version as a pipeline variable
 echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
-
-# Export Terraform version
-export TERRAFORM_VERSION="1.9.5-1"
