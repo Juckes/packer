@@ -25,9 +25,10 @@ jobs:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
 
       # Step 2: Load Environment Variables (Run tools.sh first)
-      - script: |
-          sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
-        displayName: 'Load environment variables'
+      # - script: |
+      #     sudo source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+      #     echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
+      #   displayName: 'Load environment variables'
 
       # Debugging Step
       - script: |
