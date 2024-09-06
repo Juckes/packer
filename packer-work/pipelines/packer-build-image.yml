@@ -31,11 +31,12 @@ jobs:
 
       # Step 3: Load Environment Variables
       - script: |
-          sudo source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+          sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
         displayName: 'Load environment variables'
 
       # Step 4: Run Packer Build (Ensure TERRAFORM_VERSION is passed correctly)
       - script: |
+          echo "TERRAFORM_VERSION: $(TERRAFORM_VERSION)"
           packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
         displayName: Packer Build
         env:
