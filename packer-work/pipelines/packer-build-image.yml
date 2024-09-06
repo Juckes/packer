@@ -19,15 +19,24 @@ jobs:
   - job: Build
     displayName: Init and Build and Save Azure Scale Set Image
     steps:
+      # Step 1: Authenticate Azure Subscription
       - template: steps/azure_auth.yml@templates
         parameters:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
+
+      # Step 2: Initialize Packer
       - script: packer init .
         displayName: Packer init
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
-      - script: source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+
+      # Step 3: Load Environment Variables
+      - script: |
+          sudo source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
         displayName: 'Load environment variables'
-      - script: packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
+
+      # Step 4: Run Packer Build (Ensure TERRAFORM_VERSION is passed correctly)
+      - script: |
+          packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
         displayName: Packer Build
         env:
           PKR_VAR_client_id: $(AZURE_SERVICE_PRINCIPAL_ID)
@@ -36,7 +45,9 @@ jobs:
           PKR_VAR_tenant_id: $(AZURE_TENANT_ID)
           PKR_VAR_template_resource_group_name: $(templateResourceGroupName)
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
+
     variables:
       templateResourceGroupName: packer
+
     workspace:
       clean: all
