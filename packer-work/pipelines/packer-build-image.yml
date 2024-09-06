@@ -25,9 +25,9 @@ jobs:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
 
       # Step 2: Load Environment Variables (Run tools.sh first)
-      - script: |
-          sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
-        displayName: 'Load environment variables'
+      # - script: |
+      #     sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+      #   displayName: 'Load environment variables'
 
       # Step 3: Initialize Packer (After the environment is set up)
       - script: |
