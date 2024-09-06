@@ -24,18 +24,24 @@ jobs:
         parameters:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
 
-      # # Step 2: Load Environment Variables (Run tools.sh first)
+      # Step 2: Ensure tools.sh is executable
       - script: |
-          bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+          chmod +x $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+        displayName: 'Ensure tools.sh is executable'
+        workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
+
+      # Step 3: Load Environment Variables (Run tools.sh first)
+      - script: |
+          sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
         displayName: 'Load environment variables'
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
 
-      # Step 3: Initialize Packer (After the environment is set up)
+      # Step 4: Initialize Packer (After the environment is set up)
       - script: packer init .
         displayName: Packer init
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
 
-      # Step 4: Run Packer Build (Make sure TERRAFORM_VERSION is passed correctly)
+      # Step 5: Run Packer Build (Make sure TERRAFORM_VERSION is passed correctly)
       - script: |
           echo "TERRAFORM_VERSION: $(TERRAFORM_VERSION)"
           packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
