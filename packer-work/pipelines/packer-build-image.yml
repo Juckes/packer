@@ -37,8 +37,8 @@ jobs:
 
       # Step 4: Run Packer Build (Make sure TERRAFORM_VERSION is passed correctly)
       - script: |
-          echo "TERRAFORM_VERSION: $(TERRAFORM_VERSION)"
-          packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
+          echo "DEFAULT_TERRAFORM_VERSION: $(DEFAULT_TERRAFORM_VERSION)"
+          packer build -var "terraform_version=$(DEFAULT_TERRAFORM_VERSION)" .
         displayName: Packer Build
         env:
           PKR_VAR_client_id: $(AZURE_SERVICE_PRINCIPAL_ID)
