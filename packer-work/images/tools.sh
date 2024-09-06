@@ -101,6 +101,7 @@ for version in "${TERRAFORM_VERSIONS[@]}"; do
 done
 tfenv use "$TERRAFORM_VERSION"
 echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
+export TERRAFORM_VERSION="1.9.1"
 
 # Terragrunt
 sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
