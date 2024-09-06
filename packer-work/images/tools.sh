@@ -3,21 +3,44 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+# Configuration Variables
+APT_REPOSITORIES=(
+  "main"
+  "restricted"
+  "universe"
+  "multiverse"
+  "ppa:git-core/ppa"
+  "ppa:deadsnakes/ppa"
+)
+
+COMMON_PACKAGES=(
+  "build-essential"
+  "jq"
+  "unzip"
+  "zip"
+  "xvfb"
+  "python3-pip"
+)
+
+DOCKER_COMPOSE_VERSION="1.29.2"
+
+TFENV_VERSION="v3.0.0"
+
+TERRAFORM_VERSIONS=("1.7.3" "1.9.1")
+TERRAFORM_VERSION="1.9.1"
+
+TERRAGRUNT_VERSION="0.55.1"
+
+CHECKOV_VERSION="2.2.94"
+
+NODE_VERSIONS=("20" "18")
+DEFAULT_NODE_VERSION="18"
+
 # Set APT options
 sudo bash -c 'echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries'
 sudo bash -c 'echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes'
 
 sudo apt-get clean && apt-get update && apt-get upgrade -y
-
-# Source the config file
-CONFIG_FILE="/tmp/config.sh"
-if [ -f "$CONFIG_FILE" ]; then
-  echo "Sourcing $CONFIG_FILE"
-  source "$CONFIG_FILE"
-else
-  echo "config.sh not found" >&2
-  exit 1
-fi
 
 # Debugging output for repositories and packages
 echo "APT_REPOSITORIES: ${APT_REPOSITORIES[*]}"
