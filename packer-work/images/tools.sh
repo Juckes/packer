@@ -79,8 +79,8 @@ source ~/.bashrc
 for version in "${TERRAFORM_VERSIONS[@]}"; do
   tfenv install "$version"
 done
-tfenv use "$DEFAULT_TERRAFORM_VERSION"
-echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$DEFAULT_TERRAFORM_VERSION"
+tfenv use "$TERRAFORM_VERSION"
+echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
 
 # Terragrunt
 sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
