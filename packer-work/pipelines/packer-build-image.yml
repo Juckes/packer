@@ -19,8 +19,8 @@ jobs:
   - job: Build
     displayName: Init and Build and Save Azure Scale Set Image
     steps:
-      - script: source $(Build.Repository.LocalPath)/packer-work/images/test.sh
-        displayName: 'Load environment variables'
+      # - script: source $(Build.Repository.LocalPath)/packer-work/images/test.sh
+      #   displayName: 'Load environment variables'
       - template: steps/azure_auth.yml@templates
         parameters:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
