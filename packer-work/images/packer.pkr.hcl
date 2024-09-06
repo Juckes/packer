@@ -12,7 +12,7 @@ source "azure-arm" "packer-image" {
     Environment      = "Sandpit"
     VM               = "Main Ubuntu 20_04"
     CreatedBy        = "Packer"
-    TerraformVersion = "${var.default_terraform_version}"
+    TerraformVersion = "${var.terraform_version}"
   }
 
   client_id       = var.client_id
@@ -26,7 +26,7 @@ build {
 
   source "source.azure-arm.packer-image" {
     managed_image_resource_group_name = var.template_resource_group_name
-    managed_image_name                = "agent-ubuntu20-${formatdate("YYYY-MM-DD-hhmm", timestamp())}-terraform-v${var.default_terraform_version}"
+    managed_image_name                = "agent-ubuntu20-${formatdate("YYYY-MM-DD-hhmm", timestamp())}-terraform-v${var.terraform_version}"
 
     os_type         = "Linux"
     image_publisher = "canonical"
@@ -73,7 +73,7 @@ variable "template_resource_group_name" {
   type        = string
 }
 
-variable "default_terraform_version" {
+variable "terraform_version" {
   description = "The version of Terraform used in the build"
   type        = string
 }
