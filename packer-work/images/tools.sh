@@ -7,7 +7,7 @@ export DEBIAN_FRONTEND=noninteractive
 sudo bash -c 'echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries'
 sudo bash -c 'echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes'
 
-sudo apt-get clean && apt-get update && apt-get upgrade
+sudo apt-get clean && apt-get update && apt-get upgrade -y
 
 # Source the config file
 CONFIG_FILE="/tmp/config.sh"
@@ -55,7 +55,6 @@ install_packages "${COMMON_PACKAGES[@]}"
 # Docker Engine
 sudo apt-get install -y docker.io
 sudo usermod -aG docker "$USER"
-newgrp docker
 
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
@@ -66,14 +65,12 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
-sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 777 "$TFENV_DIR"
-git clone --depth 1 --branch $TFENV_VERSION https://github.com/tfutils/tfenv.git $TFENV_DIR
+sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 755 "$TFENV_DIR"
+git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
 # make tfenv bin available in this shell
 export PATH="$PATH:$TFENV_DIR/bin"
 ## make tfenv bin available from /usr/local/bin for agents
-sudo ln -s $TFENV_DIR/* /usr/local/bin
-echo 'export PATH="$PATH:/usr/local/tfenv/bin"' >> ~/.bashrc
-source ~/.bashrc
+sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
 
 # Terraform
 for version in "${TERRAFORM_VERSIONS[@]}"; do
@@ -94,7 +91,7 @@ curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/instal
 
 # Node / NVM
 NVM_DIR="/usr/local/nvm"
-sudo mkdir -p "$NVM_DIR" && sudo chmod -R 777 "$NVM_DIR"
+sudo mkdir -p "$NVM_DIR" && sudo chmod -R 755 "$NVM_DIR"
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
 
 export NVM_DIR="$NVM_DIR"
