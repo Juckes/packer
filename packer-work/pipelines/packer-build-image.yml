@@ -30,12 +30,6 @@ jobs:
       #     echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
       #   displayName: 'Load environment variables'
 
-      # Debugging Step
-      - script: |
-          echo "Current Terraform Version: $(TERRAFORM_VERSION)"
-          echo "Current working directory: $(Build.Repository.LocalPath)/packer-work/images"
-        displayName: 'Debug Information'
-
       # Step 3: Initialize Packer (After the environment is set up)
       - script: |
           packer init .
