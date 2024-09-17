@@ -26,7 +26,7 @@ jobs:
 
       # Step 2: Load Environment Variables (Run tools.sh first)
       - script: |
-          sudo source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+          sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
           echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
         displayName: 'Load environment variables'
 
