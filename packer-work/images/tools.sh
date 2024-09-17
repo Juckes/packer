@@ -1,5 +1,6 @@
 #!/bin/bash
-Configuration Variables
+
+# Configuration Variables
 APT_REPOSITORIES=(
   "main"
   "restricted"
