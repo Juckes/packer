@@ -99,6 +99,16 @@ export PATH="$PATH:$TFENV_DIR/bin"
 # make tfenv bin available from /usr/local/bin for agents
 sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
 
+# Install Terraform versions using sudo to avoid permission issues
+for version in "${TERRAFORM_VERSIONS[@]}"; do
+  sudo tfenv install "$version"
+done
+
+# Use the desired Terraform version
+sudo tfenv use "$TERRAFORM_VERSION"
+echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
+export TERRAFORM_VERSION=$TERRAFORM_VERSION
+
 
 # Terraform
 for version in "${TERRAFORM_VERSIONS[@]}"; do
