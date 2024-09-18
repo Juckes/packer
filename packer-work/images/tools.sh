@@ -108,28 +108,28 @@ sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
 # TFLint
 curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-# Node / NVM
-NVM_DIR="/usr/local/nvm"
-ensure_directory "$NVM_DIR"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
+# # Node / NVM
+# NVM_DIR="/usr/local/nvm"
+# ensure_directory "$NVM_DIR"
+# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
 
-export NVM_DIR="$NVM_DIR"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-export PATH="$PATH:$NVM_DIR"
+# export NVM_DIR="$NVM_DIR"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# export PATH="$PATH:$NVM_DIR"
 
-# Add nvm and tfenv to path for all users
-sudo tee /etc/profile.d/custom_env.sh > /dev/null <<"EOT"
-export NVM_DIR="/usr/local/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-export PATH="$PATH:/usr/local/tfenv/bin:$NVM_DIR"
-EOT
+# # Add nvm and tfenv to path for all users
+# sudo tee /etc/profile.d/custom_env.sh > /dev/null <<"EOT"
+# export NVM_DIR="/usr/local/nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# export PATH="$PATH:/usr/local/tfenv/bin:$NVM_DIR"
+# EOT
 
-for version in "${NODE_VERSIONS[@]}"; do
-  nvm install "$version"
-done
+# for version in "${NODE_VERSIONS[@]}"; do
+#   nvm install "$version"
+# done
 
-nvm alias default "$DEFAULT_NODE_VERSION"
-nvm use default
+# nvm alias default "$DEFAULT_NODE_VERSION"
+# nvm use default
 
 # Azure CLI
 sudo curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
