@@ -26,7 +26,7 @@ jobs:
 
       # Step 2: Load Environment Variables (Run tools.sh first)
       - script: |
-          sudo bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+          bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
           echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
         displayName: 'Load environment variables'
 
@@ -47,6 +47,7 @@ jobs:
           PKR_VAR_subscription_id: $(SANDPIT_SUBSCRIPTION)
           PKR_VAR_tenant_id: $(AZURE_TENANT_ID)
           PKR_VAR_template_resource_group_name: $(templateResourceGroupName)
+          TERRAFORM_VERSION: $(TERRAFORM_VERSION)
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
 
     variables:
