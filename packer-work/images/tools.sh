@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#!/bin/bash
+set -euo pipefail
+
 APT_REPOSITORIES=(
   "main"
   "restricted"
@@ -33,15 +34,20 @@ CHECKOV_VERSION="2.2.94"
 NODE_VERSIONS=("20" "18")
 DEFAULT_NODE_VERSION="18"
 
-set -euo pipefail
-
 export DEBIAN_FRONTEND=noninteractive
+
+# Function to ensure directory exists and has correct permissions
+ensure_directory() {
+    local dir="$1"
+    sudo mkdir -p "$dir"
+    sudo chmod 755 "$dir"
+}
 
 # Set APT options
 sudo bash -c 'echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries'
 sudo bash -c 'echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes'
 
-sudo apt-get clean && apt-get update && apt-get upgrade -y
+sudo apt-get clean && sudo apt-get update && sudo apt-get upgrade -y
 
 # Debugging output for repositories and packages
 echo "APT_REPOSITORIES: ${APT_REPOSITORIES[*]}"
@@ -76,25 +82,13 @@ done
 # Install common packages
 install_packages "${COMMON_PACKAGES[@]}"
 
-# # Docker Engine
-# sudo apt-get install -y docker.io
-# sudo usermod -aG docker "$USER"
-
-# sudo systemctl enable docker.service
-# sudo systemctl enable containerd.service
-
-# # Docker Compose
-# sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-# sudo chmod +x /usr/local/bin/docker-compose
-
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
-sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 755 "$TFENV_DIR"
+ensure_directory "$TFENV_DIR"
 sudo git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
-# make tfenv bin available in this shell
 export PATH="$PATH:$TFENV_DIR/bin"
-## make tfenv bin available from /usr/local/bin for agents
-sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
+# make tfenv bin available from /usr/local/bin for agents
+sudo ln -sf "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
 
 # Terraform
 for version in "${TERRAFORM_VERSIONS[@]}"; do
@@ -116,18 +110,18 @@ curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/instal
 
 # Node / NVM
 NVM_DIR="/usr/local/nvm"
-sudo mkdir -p "$NVM_DIR" && sudo chmod -R 755 "$NVM_DIR"
+ensure_directory "$NVM_DIR"
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
 
 export NVM_DIR="$NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 export PATH="$PATH:$NVM_DIR"
 
-## add nvm and tfenv to path
-sudo tee /etc/skel/.bashrc > /dev/null <<"EOT"
+# Add nvm and tfenv to path for all users
+sudo tee /etc/profile.d/custom_env.sh > /dev/null <<"EOT"
 export NVM_DIR="/usr/local/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-export PATH="$PATH:$NVM_DIR"
+export PATH="$PATH:/usr/local/tfenv/bin:$NVM_DIR"
 EOT
 
 for version in "${NODE_VERSIONS[@]}"; do
@@ -146,9 +140,4 @@ sudo dpkg -i packages-microsoft-prod.deb
 sudo rm packages-microsoft-prod.deb
 sudo apt-get update
 sudo apt-get install -y apt-transport-https
-sudo apt-get update
-sudo apt-get install -y aspnetcore-runtime-6.0
-
-# Clean up
-echo "Cleaning up..."
-sudo /usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync
+sudo apt-get upd
