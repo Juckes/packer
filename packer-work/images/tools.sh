@@ -104,11 +104,10 @@ for version in "${TERRAFORM_VERSIONS[@]}"; do
   sudo tfenv install "$version"
 done
 
-# Use the desired Terraform version
+# Use the desired Terraform version with sudo
 sudo tfenv use "$TERRAFORM_VERSION"
 echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
 export TERRAFORM_VERSION=$TERRAFORM_VERSION
-
 
 # Terraform
 for version in "${TERRAFORM_VERSIONS[@]}"; do
