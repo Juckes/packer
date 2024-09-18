@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Configuration Variables
+#!/bin/bash
 APT_REPOSITORIES=(
   "main"
   "restricted"
@@ -76,44 +76,31 @@ done
 # Install common packages
 install_packages "${COMMON_PACKAGES[@]}"
 
-# # Docker Engine
-# sudo apt-get install -y docker.io
-# sudo usermod -aG docker "$USER"
+# Docker Engine
+sudo apt-get install -y docker.io
+sudo usermod -aG docker "$USER"
 
-# sudo systemctl enable docker.service
-# sudo systemctl enable containerd.service
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
 
-# # Docker Compose
-# sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-# sudo chmod +x /usr/local/bin/docker-compose
+# Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
-sudo mkdir -p "$TFENV_DIR"
-sudo chmod -R 755 "$TFENV_DIR"
+sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 755 "$TFENV_DIR"
 sudo git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
-
 # make tfenv bin available in this shell
 export PATH="$PATH:$TFENV_DIR/bin"
-
-# make tfenv bin available from /usr/local/bin for agents
+## make tfenv bin available from /usr/local/bin for agents
 sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
-
-# Install Terraform versions using sudo to avoid permission issues
-for version in "${TERRAFORM_VERSIONS[@]}"; do
-  sudo tfenv install "$version"
-done
-
-# Use the desired Terraform version with sudo
-sudo tfenv use "$TERRAFORM_VERSION"
-echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
-export TERRAFORM_VERSION=$TERRAFORM_VERSION
 
 # Terraform
 for version in "${TERRAFORM_VERSIONS[@]}"; do
-  tfenv install "$version"
+  sudo tfenv install "$version"
 done
-tfenv use "$TERRAFORM_VERSION"
+sudo tfenv use "$TERRAFORM_VERSION"
 echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
 export TERRAFORM_VERSION=$TERRAFORM_VERSION
 
@@ -151,12 +138,12 @@ nvm alias default "$DEFAULT_NODE_VERSION"
 nvm use default
 
 # Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+sudo curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # .NET Core
-wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
-rm packages-microsoft-prod.deb
+sudo rm packages-microsoft-prod.deb
 sudo apt-get update
 sudo apt-get install -y apt-transport-https
 sudo apt-get update
