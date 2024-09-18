@@ -89,12 +89,16 @@ install_packages "${COMMON_PACKAGES[@]}"
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
-sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 755 "$TFENV_DIR"
-git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+sudo mkdir -p "$TFENV_DIR"
+sudo chmod -R 755 "$TFENV_DIR"
+sudo git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+
 # make tfenv bin available in this shell
 export PATH="$PATH:$TFENV_DIR/bin"
-## make tfenv bin available from /usr/local/bin for agents
+
+# make tfenv bin available from /usr/local/bin for agents
 sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
+
 
 # Terraform
 for version in "${TERRAFORM_VERSIONS[@]}"; do
