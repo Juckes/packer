@@ -26,9 +26,10 @@ jobs:
 
       # Step 2: Load Environment Variables (Run tools.sh first)
       - script: |
-          bash $(Build.Repository.LocalPath)/packer-work/images/tools.sh
+          source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
           echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
         displayName: 'Load environment variables'
+
 
       # Step 3: Initialize Packer (After the environment is set up)
       - script: |
