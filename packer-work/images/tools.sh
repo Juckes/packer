@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+source /path/to/config-file.sh
+
 export DEBIAN_FRONTEND=noninteractive
 
 # Function to ensure directory exists and has correct permissions
