@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-source "/home/vsts/work/1/s/packer-work/images/config.sh"
+source "${path.cwd}/config.sh"
 
 export DEBIAN_FRONTEND=noninteractive
 
