@@ -85,20 +85,27 @@ install_packages "${COMMON_PACKAGES[@]}"
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
-sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 755 "$TFENV_DIR"
-git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
-# make tfenv bin available in this shell
-export PATH="$PATH:$TFENV_DIR/bin"
-## make tfenv bin available from /usr/local/bin for agents
-sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
 
-# Terraform
+# Ensure the directory exists and set correct permissions
+sudo mkdir -p "$TFENV_DIR"
+sudo chown "$USER:$USER" "$TFENV_DIR"
+
+# Clone tfenv repository using sudo for permissions
+sudo git clone https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+
+# Make tfenv bin available in this shell and for future use by creating symlinks
+export PATH="$PATH:$TFENV_DIR/bin"
+sudo ln -s "$TFENV_DIR/bin/*" /usr/local/bin
+
+# Install Terraform versions specified in TERRAFORM_VERSIONS
 for version in "${TERRAFORM_VERSIONS[@]}"; do
-  tfenv install "$version"
+    tfenv install "$version"
 done
+
+# Use the specified Terraform version
 tfenv use "$TERRAFORM_VERSION"
 echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
-export TERRAFORM_VERSION=$TERRAFORM_VERSION
+export TERRAFORM_VERSION="$TERRAFORM_VERSION"
 
 # Terragrunt
 sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
