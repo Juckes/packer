@@ -6,7 +6,7 @@ set -euo pipefail
 echo "Checking for config.sh in the directory: $(dirname "$0")"
 ls -l "$(dirname "$0")"
 
-source "/home/vsts/work/1/s/packer-work/images/config.sh"
+# source "/home/vsts/work/1/s/packer-work/images/config.sh"
 
 export DEBIAN_FRONTEND=noninteractive
 
