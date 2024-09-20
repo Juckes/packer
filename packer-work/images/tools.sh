@@ -8,6 +8,7 @@ ls -l
 
 # Source config.sh from the specified path
 CONFIG_PATH="/home/vsts/work/1/s/packer-work/images/config.sh"
+
 if [ -f "$CONFIG_PATH" ]; then
     echo "config.sh found, sourcing it..."
     source "$CONFIG_PATH"
@@ -69,6 +70,45 @@ done
 
 # Install common packages
 install_packages "${COMMON_PACKAGES[@]}"
+
+
+# Docker Engine
+sudo apt-get install -y docker.io
+sudo usermod -aG docker "$USER"
+
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
+
+# Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Install tfenv
+TFENV_DIR="/usr/local/tfenv"
+sudo mkdir -p "$TFENV_DIR" && sudo chmod -R 755 "$TFENV_DIR"
+git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+# make tfenv bin available in this shell
+export PATH="$PATH:$TFENV_DIR/bin"
+## make tfenv bin available from /usr/local/bin for agents
+sudo ln -s "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
+
+# Terraform
+for version in "${TERRAFORM_VERSIONS[@]}"; do
+  tfenv install "$version"
+done
+tfenv use "$TERRAFORM_VERSION"
+echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
+export TERRAFORM_VERSION=$TERRAFORM_VERSION
+
+# Terragrunt
+sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
+sudo chmod 755 /usr/bin/terragrunt
+
+# Checkov via pip
+sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
+
+# TFLint
+curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # Node / NVM
 NVM_DIR="/usr/local/nvm"
