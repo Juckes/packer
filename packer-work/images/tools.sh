@@ -72,16 +72,16 @@ done
 install_packages "${COMMON_PACKAGES[@]}"
 
 
-# Docker Engine
-sudo apt-get install -y docker.io
-sudo usermod -aG docker "$USER"
+# # Docker Engine
+# sudo apt-get install -y docker.io
+# sudo usermod -aG docker "$USER"
 
-sudo systemctl enable docker.service
-sudo systemctl enable containerd.service
+# sudo systemctl enable docker.service
+# sudo systemctl enable containerd.service
 
-# Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+# # Docker Compose
+# sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# sudo chmod +x /usr/local/bin/docker-compose
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
