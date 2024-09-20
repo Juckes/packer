@@ -75,4 +75,4 @@ NVM_DIR="/usr/local/nvm"
 
 # Ensure directory exists and set permissions
 sudo mkdir -p "$NVM_DIR"
-sudo chown "$USER:$USER" "$NV
+sudo chown "$USER:$USER" "$NV"
