@@ -85,7 +85,7 @@ install_packages "${COMMON_PACKAGES[@]}"
 # Node / NVM
 NVM_DIR="/usr/local/nvm"
 ensure_directory "$NVM_DIR"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
+sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
 
 export NVM_DIR="$NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
