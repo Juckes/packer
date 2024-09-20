@@ -3,11 +3,11 @@
 set -euo pipefail
 
 # Debugging output to check if config.sh is available
-echo "Checking for config.sh in the directory: $(dirname "$0")"
-ls -l "$(dirname "$0")"
+echo "Checking for config.sh in the current directory: $(pwd)"
+ls -l
 
-# Source config.sh
-source "/home/vsts/work/1/s/packer-work/images/config.sh"
+# Source config.sh from the current directory
+source "./config.sh"  # Use relative path
 
 export DEBIAN_FRONTEND=noninteractive
 
