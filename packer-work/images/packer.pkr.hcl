@@ -37,15 +37,15 @@ build {
     vm_size  = "Standard_DS2_v2"
   }
 
-  provisioner "file" {
-    source      = "config.sh"
-    destination = "/tmp/config.sh"
-  }
-
-  // provisioner "shell" {
-  //   execute_command = "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash -e '{{ .Path }}'"
-  //   script          = "${path.cwd}/config.sh"
+  // provisioner "file" {
+  //   source      = "config.sh"
+  //   destination = "/tmp/config.sh"
   // }
+
+      provisioner "shell" {
+        execute_command = "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash -e '{{ .Path }}'"
+        script          = "${path.cwd}/config.sh"
+      }
 
   provisioner "shell" {
     execute_command = "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash -e '{{ .Path }}'"
