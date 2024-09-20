@@ -10,16 +10,17 @@ ls -l
 # source "./config.sh"  # Use relative path
 
 
-if [ -f "$(dirname "$0")/config.sh" ]; then
+# Adjust the path to locate the config.sh file in packer-work/images
+CONFIG_PATH="/home/vsts/work/1/s/packer-work/images/config.sh"
+
+if [ -f "$CONFIG_PATH" ]; then
     echo "config.sh found, sourcing it..."
-    source "$(dirname "$0")/config.sh"
+    source "$CONFIG_PATH"
 else
-    echo "config.sh not found!" >&2
+    echo "config.sh not found at $CONFIG_PATH!" >&2
     exit 1
 fi
 
-
-source "$(dirname "$0")/config.sh"
 
 
 export DEBIAN_FRONTEND=noninteractive
