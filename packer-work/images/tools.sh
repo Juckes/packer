@@ -75,4 +75,43 @@ NVM_DIR="/usr/local/nvm"
 
 # Ensure directory exists and set permissions
 sudo mkdir -p "$NVM_DIR"
-sudo chown "$USER:$USER" "$NV"
+sudo chown "$USER:$USER" "$NVM_DIR"
+
+# Install NVM as the current user
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
+
+# Source NVM
+export NVM_DIR="$NVM_DIR"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+export PATH="$PATH:$NVM_DIR"
+
+# Install Node versions
+for version in "${NODE_VERSIONS[@]}"; do
+    nvm install "$version"
+done
+
+nvm alias default "$DEFAULT_NODE_VERSION"
+nvm use default
+
+# Add nvm to profile for all users
+sudo tee /etc/profile.d/custom_env.sh > /dev/null <<"EOT"
+export NVM_DIR="/usr/local/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+export PATH="$PATH:$NVM_DIR"
+EOT
+
+# Azure CLI
+sudo curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# .NET Core
+sudo wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo rm packages-microsoft-prod.deb
+sudo apt-get update || { echo "apt-get update after .NET Core install failed"; exit 1; }
+sudo apt-get install -y apt-transport-https || { echo "apt-get install apt-transport-https failed"; exit 1; }
+sudo apt-get update || { echo "Second apt-get update failed"; exit 1; }
+sudo apt-get install -y aspnetcore-runtime-6.0 || { echo "apt-get install aspnetcore-runtime-6.0 failed"; exit 1; }
+
+# Clean up
+echo "Cleaning up..."
+sudo /usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync
