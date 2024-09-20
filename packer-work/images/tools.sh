@@ -9,6 +9,16 @@ ls -l
 # Source config.sh from the current directory
 # source "./config.sh"  # Use relative path
 
+
+if [ -f "$(dirname "$0")/config.sh" ]; then
+    echo "config.sh found, sourcing it..."
+    source "$(dirname "$0")/config.sh"
+else
+    echo "config.sh not found!" >&2
+    exit 1
+fi
+
+
 source "$(dirname "$0")/config.sh"
 
 
