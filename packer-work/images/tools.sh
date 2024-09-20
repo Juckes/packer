@@ -7,6 +7,7 @@ source "/home/vsts/work/1/s/packer-work/images/config.sh"
 export DEBIAN_FRONTEND=noninteractive
 
 # Function to ensure directory exists and has correct permissions
+# This could be deleted as it's a check
 ensure_directory() {
     local dir="$1"
     sudo mkdir -p "$dir"
@@ -23,6 +24,7 @@ sudo apt-get update || { echo "apt-get update failed"; exit 1; }
 sudo apt-get upgrade -y || { echo "apt-get upgrade failed"; exit 1; }
 
 # Debugging output for repositories and packages
+# This could be deleted as it's a check
 echo "APT_REPOSITORIES: ${APT_REPOSITORIES[*]}"
 echo "COMMON_PACKAGES: ${COMMON_PACKAGES[*]}"
 
@@ -55,30 +57,30 @@ done
 # Install common packages
 install_packages "${COMMON_PACKAGES[@]}"
 
-# Install tfenv
-TFENV_DIR="/usr/local/tfenv"
-ensure_directory "$TFENV_DIR"
-sudo git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
-export PATH="$PATH:$TFENV_DIR/bin"
-sudo ln -sf "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
+# # Install tfenv
+# TFENV_DIR="/usr/local/tfenv"
+# ensure_directory "$TFENV_DIR"
+# sudo git clone --depth 1 --branch "$TFENV_VERSION" https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+# export PATH="$PATH:$TFENV_DIR/bin"
+# sudo ln -sf "$TFENV_DIR/bin/tfenv" /usr/local/bin/tfenv
 
-# Terraform
-for version in "${TERRAFORM_VERSIONS[@]}"; do
-  sudo tfenv install "$version"
-done
-sudo tfenv use "$TERRAFORM_VERSION"
-echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
-export TERRAFORM_VERSION=$TERRAFORM_VERSION
+# # Terraform
+# for version in "${TERRAFORM_VERSIONS[@]}"; do
+#   sudo tfenv install "$version"
+# done
+# sudo tfenv use "$TERRAFORM_VERSION"
+# echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
+# export TERRAFORM_VERSION=$TERRAFORM_VERSION
 
-# Terragrunt
-sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
-sudo chmod 755 /usr/bin/terragrunt
+# # Terragrunt
+# sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
+# sudo chmod 755 /usr/bin/terragrunt
 
-# Checkov via pip
-sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
+# # Checkov via pip
+# sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
 
-# TFLint
-curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+# # TFLint
+# curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # Node / NVM
 NVM_DIR="/usr/local/nvm"
