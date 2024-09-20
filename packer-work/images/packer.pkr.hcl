@@ -39,7 +39,7 @@ build {
 
   provisioner "file" {
     source      = "config.sh"
-    destination = "/tmp/config.sh"
+    destination = "/home/vsts/work/1/s/packer-work/images/config.sh"
   }
 
   provisioner "shell" {
