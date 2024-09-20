@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# source /tmp/config.sh
+source /tmp/config.sh
 
 export DEBIAN_FRONTEND=noninteractive
 
