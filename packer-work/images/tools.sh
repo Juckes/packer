@@ -7,7 +7,10 @@ echo "Checking for config.sh in the current directory: $(pwd)"
 ls -l
 
 # Source config.sh from the current directory
-source "./config.sh"  # Use relative path
+# source "./config.sh"  # Use relative path
+
+source "$(dirname "$0")/config.sh"
+
 
 export DEBIAN_FRONTEND=noninteractive
 
