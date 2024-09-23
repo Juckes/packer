@@ -110,6 +110,7 @@ install_packages "${COMMON_PACKAGES[@]}"
 # Docker Engine
 sudo apt-get install -y docker.io
 sudo usermod -aG docker "$USER"
+newgrp docker
 
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
