@@ -42,7 +42,7 @@ echo "Checking for config.sh in the current directory: $(pwd)"
 ls -l
 
 # Source config.sh from the specified path
-CONFIG_PATH="/home/vsts/work/1/s/packer-work/images/config.sh"
+# CONFIG_PATH="/home/vsts/work/1/s/home/packer/config.sh"
 
 if [ -f "$CONFIG_PATH" ]; then
     echo "config.sh found, sourcing it..."
