@@ -44,13 +44,13 @@ ls -l
 # Source config.sh from the specified path
 # CONFIG_PATH="/home/vsts/work/1/s/home/packer/config.sh"
 
-if [ -f "$CONFIG_PATH" ]; then
-    echo "config.sh found, sourcing it..."
-    source "$CONFIG_PATH"
-else
-    echo "config.sh not found at $CONFIG_PATH!" >&2
-    exit 1
-fi
+# if [ -f "$CONFIG_PATH" ]; then
+#     echo "config.sh found, sourcing it..."
+#     source "$CONFIG_PATH"
+# else
+#     echo "config.sh not found at $CONFIG_PATH!" >&2
+#     exit 1
+# fi
 
 export DEBIAN_FRONTEND=noninteractive
 
