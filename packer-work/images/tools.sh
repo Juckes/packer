@@ -37,11 +37,11 @@ DEFAULT_NODE_VERSION="18"
 
 set -euo pipefail
 
-# Debugging output to check if config.sh is available
-echo "Checking for config.sh in the current directory: $(pwd)"
-ls -l
+# # Debugging output to check if config.sh is available
+# echo "Checking for config.sh in the current directory: $(pwd)"
+# ls -l
 
-# Source config.sh from the specified path
+# # Source config.sh from the specified path
 # CONFIG_PATH="/home/vsts/work/1/s/home/packer/config.sh"
 
 # if [ -f "$CONFIG_PATH" ]; then
@@ -55,14 +55,14 @@ ls -l
 export DEBIAN_FRONTEND=noninteractive
 
 # Set default for DEFAULT_NODE_VERSION if not set
-DEFAULT_NODE_VERSION="${DEFAULT_NODE_VERSION:-14}"  # Change 14 to your preferred default version
+# DEFAULT_NODE_VERSION="${DEFAULT_NODE_VERSION:-14}"  # Change 14 to your preferred default version
 
-# Function to ensure directory exists and has correct permissions
-ensure_directory() {
-    local dir="$1"
-    sudo mkdir -p "$dir"
-    sudo chmod 755 "$dir"
-}
+# # Function to ensure directory exists and has correct permissions
+# ensure_directory() {
+#     local dir="$1"
+#     sudo mkdir -p "$dir"
+#     sudo chmod 755 "$dir"
+# }
 
 # Set APT options
 sudo bash -c 'echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries'
