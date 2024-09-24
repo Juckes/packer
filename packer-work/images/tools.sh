@@ -99,38 +99,43 @@ for repo in "${APT_REPOSITORIES[@]}"; do
     add_apt_repository "$repo"
 done
 
-# Install common packages
-install_packages "${COMMON_PACKAGES[@]}"
+# Purge existing Docker installations if any
+echo "Purging old Docker versions..."
+sudo apt-get purge -y docker-engine docker docker.io containerd runc || { echo "Docker purge failed"; exit 1; }
 
-######################################
-# Remove any old versions of Docker
-sudo apt-get remove -y docker docker-engine docker.io containerd runc
+# Check if Docker is already installed
+if ! command -v docker &> /dev/null; then
+    echo "Docker not found. Installing..."
+    # Install Docker packages
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io || { echo "Docker installation failed"; exit 1; }
+else
+    echo "Docker is already installed. Skipping installation."
+fi
 
-# Install necessary prerequisites
-# sudo apt-get update
-# sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-
-# # Add Docker's official GPG key
-# curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-# # Set up the stable Docker repository
-# echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# # Update the package index
-# sudo apt-get update
-
-
-########################################
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+# Add current user to Docker group
 sudo usermod -aG docker "$USER"
-newgrp docker
+echo "Added $USER to the docker group"
 
+# Enable Docker and containerd services
+echo "Enabling Docker services..."
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
-# Docker Compose
+# Start Docker and containerd services
+sudo systemctl start docker.service || { echo "Failed to start Docker service"; exit 1; }
+sudo systemctl start containerd.service || { echo "Failed to start containerd service"; exit 1; }
+
+# Verify that Docker services are running
+sudo systemctl status docker.service || { echo "Docker service failed to start"; exit 1; }
+sudo systemctl status containerd.service || { echo "Containerd service failed to start"; exit 1; }
+
+# Install Docker Compose
+echo "Installing Docker Compose..."
 sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose || { echo "Failed to install Docker Compose"; exit 1; }
+
+echo "Docker and Docker Compose installation complete."
+
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
