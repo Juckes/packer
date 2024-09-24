@@ -83,7 +83,7 @@ install_packages "${COMMON_PACKAGES[@]}"
 
 
 # Docker Engine
-sudo apt-get install -y docker-ce
+sudo apt-get install -y docker.io
 sudo usermod -aG docker "$USER"
 
 sudo systemctl enable docker.service
