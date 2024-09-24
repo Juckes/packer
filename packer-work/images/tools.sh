@@ -129,7 +129,6 @@ sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPO
 sudo chmod +x /usr/local/bin/docker-compose
 
 
-
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
 
