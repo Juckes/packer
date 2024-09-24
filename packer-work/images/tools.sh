@@ -123,6 +123,10 @@ newgrp docker
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
+# Restart services flagged by needrestart
+sudo systemctl restart dbus.service packagekit.service php8.1-fpm.service
+
+
 # Install Docker Compose
 echo "Installing Docker Compose..."
 sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
