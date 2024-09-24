@@ -1,4 +1,6 @@
 #!/bin/bash
+
+#!/bin/bash
 APT_REPOSITORIES=(
   "main"
   "restricted"
@@ -31,6 +33,8 @@ CHECKOV_VERSION="2.2.94"
 NODE_VERSIONS=("20" "18")
 DEFAULT_NODE_VERSION="18"
 
+
+
 set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
@@ -39,90 +43,106 @@ export DEBIAN_FRONTEND=noninteractive
 sudo bash -c 'echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries'
 sudo bash -c 'echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes'
 
-# Disable man-db service to prevent hang during Docker installation
-sudo systemctl stop man-db.service
-
 # Update and upgrade
 sudo apt-get clean || { echo "apt-get clean failed"; exit 1; }
 sudo apt-get update || { echo "apt-get update failed"; exit 1; }
 sudo apt-get upgrade -y || { echo "apt-get upgrade failed"; exit 1; }
 
+# Debugging output for repositories and packages
+echo "APT_REPOSITORIES: ${APT_REPOSITORIES[*]}"
+echo "COMMON_PACKAGES: ${COMMON_PACKAGES[*]}"
+
+# Function to add APT repository
+add_apt_repository() {
+    if sudo add-apt-repository -y "$1"; then
+        echo "Added repository: $1"
+    else
+        echo "Failed to add repository: $1" >&2
+        exit 1
+    fi
+}
+
+# Function to install packages
+install_packages() {
+    if sudo apt-get install -y --no-install-recommends "$@"; then
+        echo "Installed packages: $@"
+    else
+        echo "Failed to install packages: $@" >&2
+        exit 1
+    fi
+}
+
 # Add repositories
 for repo in "${APT_REPOSITORIES[@]}"; do
     echo "Adding repository: $repo"
-    sudo add-apt-repository -y "$repo"
+    add_apt_repository "$repo"
 done
 
-# # Remove existing Docker installations
-# for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
-#     sudo apt-get remove -y $pkg
-# done
+# Install common packages
+install_packages "${COMMON_PACKAGES[@]}"
 
-# # Add Docker's official GPG key:
-# sudo apt-get install -y ca-certificates curl
-# sudo install -m 0755 -d /etc/apt/keyrings
-# sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-# sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# # Add the Docker repository to Apt sources:
-# echo \
-#   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-#   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-#   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# # Install Docker packages
-# sudo apt-get update
-# sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# # Re-enable man-db service after Docker installation
-# sudo systemctl start man-db.service
-
-# # Add user to Docker group and start services
+# # Docker Engine
+# sudo apt-get install -y docker.io
 # sudo usermod -aG docker "$USER"
-# newgrp docker
+
 # sudo systemctl enable docker.service
 # sudo systemctl enable containerd.service
 
-# # Restart services flagged by needrestart
-# sudo systemctl restart --no-block dbus.service packagekit.service php8.1-fpm.service
-
-# # Install Docker Compose
-# echo "Installing Docker Compose..."
+# # Docker Compose
 # sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 # sudo chmod +x /usr/local/bin/docker-compose
 
 # Install tfenv
 TFENV_DIR="/usr/local/tfenv"
+
+# Ensure the directory exists and set correct permissions
 sudo mkdir -p "$TFENV_DIR"
+sudo chown "$USER:$USER" "$TFENV_DIR"
+
+# Clone tfenv repository using sudo for permissions
 sudo git clone https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+
+# Make tfenv bin available in this shell and for future use by creating symlinks
 export PATH="$PATH:$TFENV_DIR/bin"
 sudo ln -s "$TFENV_DIR/bin/*" /usr/local/bin
 
-# Install Terraform versions
+# Install Terraform versions specified in TERRAFORM_VERSIONS
 for version in "${TERRAFORM_VERSIONS[@]}"; do
     tfenv install "$version"
 done
+
+# Use the specified Terraform version
 tfenv use "$TERRAFORM_VERSION"
+echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
 export TERRAFORM_VERSION="$TERRAFORM_VERSION"
 
-# Install Terragrunt
+# Terragrunt
 sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
 sudo chmod 755 /usr/bin/terragrunt
 
-# Install Checkov via pip
+# Checkov via pip
 sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
 
-# Install TFLint
+# TFLint
 curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-# Install Node.js via NVM
+# Node / NVM
 NVM_DIR="/usr/local/nvm"
+
+# Ensure directory exists and set permissions
 sudo mkdir -p "$NVM_DIR"
+sudo chown "$USER:$USER" "$NVM_DIR"
+
+# Install NVM as the current user
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
+
+# Source NVM
 export NVM_DIR="$NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 export PATH="$PATH:$NVM_DIR"
 
+# Install Node versions
 for version in "${NODE_VERSIONS[@]}"; do
     nvm install "$version"
 done
@@ -137,16 +157,18 @@ export NVM_DIR="/usr/local/nvm"
 export PATH="$PATH:$NVM_DIR"
 EOT
 
-# Install Azure CLI
+# Azure CLI
 sudo curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-# Install .NET Core
+# .NET Core
 sudo wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 sudo rm packages-microsoft-prod.deb
-sudo apt-get update
-sudo apt-get install -y apt-transport-https aspnetcore-runtime-6.0
+sudo apt-get update || { echo "apt-get update after .NET Core install failed"; exit 1; }
+sudo apt-get install -y apt-transport-https || { echo "apt-get install apt-transport-https failed"; exit 1; }
+sudo apt-get update || { echo "Second apt-get update failed"; exit 1; }
+sudo apt-get install -y aspnetcore-runtime-6.0 || { echo "apt-get install aspnetcore-runtime-6.0 failed"; exit 1; }
 
-# Clean up and deprovision
+# Clean up
 echo "Cleaning up..."
 sudo /usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync
