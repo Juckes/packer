@@ -99,42 +99,35 @@ for repo in "${APT_REPOSITORIES[@]}"; do
     add_apt_repository "$repo"
 done
 
-# Purge existing Docker installations if any
-echo "Purging old Docker versions..."
-sudo apt-get purge -y docker docker.io containerd runc || { echo "Docker purge failed"; exit 1; }
+# Add Docker's official GPG key
+echo "Adding Docker's GPG key..."
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
-# Check if Docker is already installed
-if ! command -v docker &> /dev/null; then
-    echo "Docker not found. Installing..."
-    # Install Docker packages
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io || { echo "Docker installation failed"; exit 1; }
-else
-    echo "Docker is already installed. Skipping installation."
-fi
+# Set up the Docker stable repository
+echo "Adding Docker's repository..."
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Add current user to Docker group
+# Update package index to include Docker packages
+echo "Updating package index..."
+sudo apt-get update
+
+# Install Docker packages
+echo "Installing Docker..."
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io || { echo "Docker installation failed"; exit 1; }
+
+# Add user to Docker group and start services
 sudo usermod -aG docker "$USER"
-echo "Added $USER to the docker group"
-
-# Enable Docker and containerd services
-echo "Enabling Docker services..."
+newgrp docker
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
-
-# Start Docker and containerd services
-sudo systemctl start docker.service || { echo "Failed to start Docker service"; exit 1; }
-sudo systemctl start containerd.service || { echo "Failed to start containerd service"; exit 1; }
-
-# Verify that Docker services are running
-sudo systemctl status docker.service || { echo "Docker service failed to start"; exit 1; }
-sudo systemctl status containerd.service || { echo "Containerd service failed to start"; exit 1; }
 
 # Install Docker Compose
 echo "Installing Docker Compose..."
 sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose || { echo "Failed to install Docker Compose"; exit 1; }
+sudo chmod +x /usr/local/bin/docker-compose
 
-echo "Docker and Docker Compose installation complete."
 
 
 # Install tfenv
