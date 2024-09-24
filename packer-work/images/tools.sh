@@ -101,7 +101,7 @@ done
 
 # Purge existing Docker installations if any
 echo "Purging old Docker versions..."
-sudo apt-get purge -y docker-engine docker docker.io containerd runc || { echo "Docker purge failed"; exit 1; }
+sudo apt-get purge -y docker docker.io containerd runc || { echo "Docker purge failed"; exit 1; }
 
 # Check if Docker is already installed
 if ! command -v docker &> /dev/null; then
