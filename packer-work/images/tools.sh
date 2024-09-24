@@ -82,12 +82,12 @@ done
 install_packages "${COMMON_PACKAGES[@]}"
 
 
-# # Docker Engine
-# sudo apt-get install -y docker.io
-# sudo usermod -aG docker "$USER"
+# Docker Engine
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker "$USER"
 
-# sudo systemctl enable docker.service
-# sudo systemctl enable containerd.service
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
 
 # # Docker Compose
 # sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
