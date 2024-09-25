@@ -37,6 +37,11 @@ build {
     vm_size  = "Standard_DS2_v2"
   }
 
+  // provisioner "file" {
+  //   source      = "config.sh"
+  //   destination = "/home/vsts/work/1/s/packer-work/images/config.sh"
+  // }
+
   provisioner "shell" {
     execute_command = "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash -e '{{ .Path }}'"
     script          = "${path.cwd}/tools.sh"

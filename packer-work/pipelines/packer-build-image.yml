@@ -14,6 +14,8 @@ resources:
 
 variables:
   - group: template-packer
+  - name: TERRAFORM_VERSION
+    value: "1.7.3-1.9.1"
 
 jobs:
   - job: Build
@@ -23,18 +25,6 @@ jobs:
       - template: steps/azure_auth.yml@templates
         parameters:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
-
-      # Step 2: Load Environment Variables (Run tools.sh first)
-      # - script: |
-      #     sudo source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
-      #     echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
-      #   displayName: 'Load environment variables'
-
-      # Debugging Step
-      - script: |
-          echo "Current Terraform Version: $(TERRAFORM_VERSION)"
-          echo "Current working directory: $(Build.Repository.LocalPath)/packer-work/images"
-        displayName: 'Debug Information'
 
       # Step 3: Initialize Packer (After the environment is set up)
       - script: |
@@ -53,6 +43,7 @@ jobs:
           PKR_VAR_subscription_id: $(SANDPIT_SUBSCRIPTION)
           PKR_VAR_tenant_id: $(AZURE_TENANT_ID)
           PKR_VAR_template_resource_group_name: $(templateResourceGroupName)
+          TERRAFORM_VERSION: $(TERRAFORM_VERSION)
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
 
     variables:
