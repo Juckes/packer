@@ -14,6 +14,17 @@ resources:
 
 variables:
   - group: template-packer
+  # Add the variables that were being loaded from tools.sh directly here
+  - name: TERRAFORM_VERSION
+    value: "1.7.3-1.9.1"  # Specify the Terraform version or load it from a variable group
+  - name: AZURE_SERVICE_PRINCIPAL_ID
+    value: "your-service-principal-id"
+  - name: AZURE_SERVICE_PRINCIPAL_SECRET
+    value: "your-service-principal-secret"
+  - name: SANDPIT_SUBSCRIPTION
+    value: "your-subscription-id"
+  - name: AZURE_TENANT_ID
+    value: "your-tenant-id"
 
 jobs:
   - job: Build
@@ -24,19 +35,13 @@ jobs:
         parameters:
           subscriptionId: $(SANDPIT_SUBSCRIPTION)
 
-      # Step 2: Load Environment Variables (Run tools.sh first)
-      # - script: |
-      #     source $(Build.Repository.LocalPath)/packer-work/images/tools.sh
-      #     echo "TERRAFORM_VERSION: $TERRAFORM_VERSION"
-      #   displayName: 'Load environment variables'
-
-      # Step 3: Initialize Packer (After the environment is set up)
+      # Step 2: Initialize Packer (After the environment is set up)
       - script: |
           packer init .
         displayName: Packer init
         workingDirectory: $(Build.Repository.LocalPath)/packer-work/images
 
-      # Step 4: Run Packer Build (Make sure TERRAFORM_VERSION is passed correctly)
+      # Step 3: Run Packer Build (Make sure TERRAFORM_VERSION is passed correctly)
       - script: |
           echo "TERRAFORM_VERSION: $(TERRAFORM_VERSION)"
           packer build -var "terraform_version=$(TERRAFORM_VERSION)" .
