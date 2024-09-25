@@ -78,9 +78,7 @@ done
 install_packages "${COMMON_PACKAGES[@]}"
 
 # Docker Engine
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-sudo docker run hello-world
+sudo apt-get install -y docker.io
 
 sudo usermod -aG docker "$USER"
 newgrp docker
@@ -92,69 +90,69 @@ sudo systemctl enable containerd.service
 sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
-# # Install tfenv
-# TFENV_DIR="/usr/local/tfenv"
+# Install tfenv
+TFENV_DIR="/usr/local/tfenv"
 
-# # Ensure the directory exists and set correct permissions
-# sudo mkdir -p "$TFENV_DIR"
-# sudo chown "$USER:$USER" "$TFENV_DIR"
+# Ensure the directory exists and set correct permissions
+sudo mkdir -p "$TFENV_DIR"
+sudo chown "$USER:$USER" "$TFENV_DIR"
 
-# # Clone tfenv repository using sudo for permissions
-# sudo git clone https://github.com/tfutils/tfenv.git "$TFENV_DIR"
+# Clone tfenv repository using sudo for permissions
+sudo git clone https://github.com/tfutils/tfenv.git "$TFENV_DIR"
 
-# # Make tfenv bin available in this shell and for future use by creating symlinks
-# export PATH="$PATH:$TFENV_DIR/bin"
-# sudo ln -s "$TFENV_DIR/bin/*" /usr/local/bin
+# Make tfenv bin available in this shell and for future use by creating symlinks
+export PATH="$PATH:$TFENV_DIR/bin"
+sudo ln -s "$TFENV_DIR/bin/*" /usr/local/bin
 
-# # Install Terraform versions specified in TERRAFORM_VERSIONS
-# for version in "${TERRAFORM_VERSIONS[@]}"; do
-#     tfenv install "$version"
-# done
+# Install Terraform versions specified in TERRAFORM_VERSIONS
+for version in "${TERRAFORM_VERSIONS[@]}"; do
+    tfenv install "$version"
+done
 
-# # Use the specified Terraform version
-# tfenv use "$TERRAFORM_VERSION"
-# echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
-# export TERRAFORM_VERSION="$TERRAFORM_VERSION"
+# Use the specified Terraform version
+tfenv use "$TERRAFORM_VERSION"
+echo "##vso[task.setvariable variable=TERRAFORM_VERSION]$TERRAFORM_VERSION"
+export TERRAFORM_VERSION="$TERRAFORM_VERSION"
 
-# # Terragrunt
-# sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
-# sudo chmod 755 /usr/bin/terragrunt
+# Terragrunt
+sudo curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o /usr/bin/terragrunt
+sudo chmod 755 /usr/bin/terragrunt
 
-# # Checkov via pip
-# sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
+# Checkov via pip
+sudo -H python3 -m pip install -U checkov=="${CHECKOV_VERSION}"
 
-# # TFLint
-# curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+# TFLint
+curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-# # Node / NVM
-# NVM_DIR="/usr/local/nvm"
+# Node / NVM
+NVM_DIR="/usr/local/nvm"
 
-# # Ensure directory exists and set permissions
-# sudo mkdir -p "$NVM_DIR"
-# sudo chown "$USER:$USER" "$NVM_DIR"
+# Ensure directory exists and set permissions
+sudo mkdir -p "$NVM_DIR"
+sudo chown "$USER:$USER" "$NVM_DIR"
 
-# # Install NVM as the current user
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
+# Install NVM as the current user
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | NVM_DIR="$NVM_DIR" bash
 
-# # Source NVM
-# export NVM_DIR="$NVM_DIR"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# export PATH="$PATH:$NVM_DIR"
+# Source NVM
+export NVM_DIR="$NVM_DIR"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+export PATH="$PATH:$NVM_DIR"
 
-# # Install Node versions
-# for version in "${NODE_VERSIONS[@]}"; do
-#     nvm install "$version"
-# done
+# Install Node versions
+for version in "${NODE_VERSIONS[@]}"; do
+    nvm install "$version"
+done
 
-# nvm alias default "$DEFAULT_NODE_VERSION"
-# nvm use default
+nvm alias default "$DEFAULT_NODE_VERSION"
+nvm use default
 
-# # Add nvm to profile for all users
-# sudo tee /etc/profile.d/custom_env.sh > /dev/null <<"EOT"
-# export NVM_DIR="/usr/local/nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# export PATH="$PATH:$NVM_DIR"
-# EOT
+# Add nvm to profile for all users
+sudo tee /etc/profile.d/custom_env.sh > /dev/null <<"EOT"
+export NVM_DIR="/usr/local/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+export PATH="$PATH:$NVM_DIR"
+EOT
 
 # Azure CLI
 sudo curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
